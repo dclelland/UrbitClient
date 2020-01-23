@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
   
   s.macos.deployment_target = '10.15'
   s.macos.source_files      = 'Sources/**/*.swift'
+  s.macos.resource_bundle   = { 'UrbitClient' => 'Resources/*' }
 end
