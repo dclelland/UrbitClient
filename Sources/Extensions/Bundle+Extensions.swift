@@ -1,6 +1,6 @@
 //
 //  Bundle+Extensions.swift
-//  Urbit
+//  UrbitClient
 //
 //  Created by Daniel Clelland on 23/01/20.
 //  Copyright © 2020 Protonome. All rights reserved.
