@@ -28,6 +28,18 @@ extension UrbitCommand {
 
 extension UrbitCommand {
     
+    public var script: String? {
+        guard let executableURL = process.executableURL, let arguments = process.arguments else {
+            return nil
+        }
+        
+        return "\(executableURL.path) \(arguments.joined(separator: " "))"
+    }
+    
+}
+
+extension UrbitCommand {
+    
 //        let outputPipe = Pipe()
 //        let errorPipe = Pipe()
         
