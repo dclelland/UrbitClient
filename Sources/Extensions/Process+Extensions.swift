@@ -52,9 +52,9 @@ extension Process {
 extension Process {
     
     public enum ProcessError: Error {
-        case runFailure(Error)
-        case nonzeroExitStatus(Process, terminationStatus: Int32)
-        case uncaughtSignal(Process, terminationStatus: Int32)
+        case runFailure(_ error: Error)
+        case nonzeroExitStatus(_ process: Process, terminationStatus: Int32)
+        case uncaughtSignal(_ process: Process, terminationStatus: Int32)
     }
     
     public func run(completion: @escaping (Result<Process, ProcessError>) -> Void) {

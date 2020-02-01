@@ -17,8 +17,8 @@ public class UrbitCommandNew: UrbitCommand {
     public enum BootType {
         
         case newComet
-        case newFakeship(ship: String)
-        case newFromKeyfile(keyfile: URL)
+        case newFakeship(_ ship: String)
+        case newFromKeyfile(_ keyfile: URL)
         
         var arguments: [String] {
             switch self {
