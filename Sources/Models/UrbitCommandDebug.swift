@@ -97,7 +97,23 @@ public class UrbitCommandDebugValidateEffects: UrbitCommandDebug {
     
 }
 
-public class UrbitCommandDebugCheckDawn: UrbitCommandDebug {
+public class UrbitCommandDebugPartialReplay: UrbitCommandDebug {
+    
+    public required init(arguments: [String] = []) {
+        super.init(arguments: ["partial-replay"] + arguments)
+    }
+    
+    public convenience init(pier: URL, last: UInt64? = nil) {
+        var arguments: [String] = [pier.path]
+        if let last = last {
+            arguments += ["--last", String(last)]
+        }
+        self.init(arguments: arguments)
+    }
+    
+}
+
+public class UrbitCommandDebugDawn: UrbitCommandDebug {
     
     public required init(arguments: [String] = []) {
         super.init(arguments: ["dawn"] + arguments)
@@ -109,7 +125,7 @@ public class UrbitCommandDebugCheckDawn: UrbitCommandDebug {
     
 }
 
-public class UrbitCommandDebugCheckComet: UrbitCommandDebug {
+public class UrbitCommandDebugComet: UrbitCommandDebug {
     
     public required init(arguments: [String] = []) {
         super.init(arguments: ["comet"])
