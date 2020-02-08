@@ -1,6 +1,6 @@
 //
 //  Bundle+Extensions.swift
-//  UrbitClient
+//  UrbitKit
 //
 //  Created by Daniel Clelland on 23/01/20.
 //  Copyright © 2020 Protonome. All rights reserved.
@@ -10,12 +10,12 @@ import Foundation
 
 extension Bundle {
     
-    public static var urbitClientBundle: Bundle {
-        return Bundle(identifier: "org.cocoapods.UrbitClient")!
+    public static var urbitKitBundle: Bundle {
+        return Bundle(identifier: "org.cocoapods.UrbitKit")!
     }
     
-    public static var urbitClientResourceBundle: Bundle {
-        return Bundle(url: urbitClientBundle.url(forResource: "UrbitClient", withExtension: "bundle")!)!
+    public static var urbitKitResourceBundle: Bundle {
+        return Bundle(url: urbitKitBundle.url(forResource: "UrbitKit", withExtension: "bundle")!)!
     }
     
 }
@@ -23,7 +23,7 @@ extension Bundle {
 extension Bundle {
     
     public var urbitExecutableURL: URL {
-        return url(forResource: "king-darwin-dynamic-06934959caa286c2778f034fca346a7b790c12e9", withExtension: nil)!
+        return url(forResource: "king-darwin-dynamic-faec933b56109c3dab05211df93bc9cb49fe28fc", withExtension: nil)!
     }
     
     public var urbitPillURL: URL {

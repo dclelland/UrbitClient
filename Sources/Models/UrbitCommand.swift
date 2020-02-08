@@ -1,6 +1,6 @@
 //
 //  UrbitProcessCommand.swift
-//  UrbitClient
+//  UrbitKit
 //
 //  Created by Daniel Clelland on 11/01/20.
 //  Copyright © 2020 Protonome. All rights reserved.
@@ -13,7 +13,7 @@ public class UrbitCommand {
     public let process: Process
     
     public required init(arguments: [String] = []) {
-        self.process = Process(executableURL: Bundle.urbitClientResourceBundle.urbitExecutableURL, arguments: arguments)
+        self.process = Process(executableURL: Bundle.urbitKitResourceBundle.urbitExecutableURL, arguments: arguments)
     }
     
 }

@@ -1,6 +1,6 @@
 //
 //  UrbitCommandNew.swift
-//  UrbitClient
+//  UrbitKit
 //
 //  Created by Daniel Clelland on 13/01/20.
 //  Copyright © 2020 Protonome. All rights reserved.
@@ -33,7 +33,7 @@ public class UrbitCommandNew: UrbitCommand {
         
     }
     
-    public convenience init(pier: URL? = nil, bootType: BootType, pill: URL? = Bundle.urbitClientResourceBundle.urbitPillURL, lite: Bool = false, arvo: URL? = nil, options: [UrbitCommandOption] = []) {
+    public convenience init(pier: URL? = nil, bootType: BootType, pill: URL? = Bundle.urbitKitResourceBundle.urbitPillURL, lite: Bool = false, arvo: URL? = nil, options: [UrbitCommandOption] = []) {
         var arguments: [String] = []
         if let pier = pier {
             arguments += [pier.path]
