@@ -10,6 +10,8 @@ import Foundation
 
 public enum UrbitCommandOption {
     
+    #warning("TODO: Add new options (--daemon; --exit)")
+    
     case ames(port: UInt16)
     case quiet
     case verbose

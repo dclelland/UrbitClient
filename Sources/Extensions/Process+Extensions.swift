@@ -9,6 +9,101 @@
 import Foundation
 import Combine
 
+public enum ProcessMessage {
+    
+    case standardOutput(_ message: String)
+    case standardError(_ message: String)
+    
+}
+
+public enum ProcessError: Error {
+    
+    case runFailure(_ error: Error)
+    case nonzeroExitStatus(_ process: Process, terminationStatus: Int32)
+    case uncaughtSignal(_ process: Process, terminationStatus: Int32)
+    
+}
+
+@available(OSX 10.15, *) private class ProcessSubscription<SubscriberType: Subscriber>: Subscription where SubscriberType.Input == ProcessMessage, SubscriberType.Failure == ProcessError {
+    
+    private var subscriber: SubscriberType?
+    
+    private let process: Process
+    
+    init(subscriber: SubscriberType, process: Process) {
+        self.subscriber = subscriber
+        self.process = process
+        self.process.terminationHandler = { [weak self] process in
+            switch (process.terminationReason, process.terminationStatus) {
+            case (.exit, 0):
+                self?.subscriber?.receive(completion: .finished)
+            case (.exit, let terminationStatus):
+                self?.subscriber?.receive(completion: .failure(.nonzeroExitStatus(process, terminationStatus: terminationStatus)))
+            case (.uncaughtSignal, let terminationStatus):
+                self?.subscriber?.receive(completion: .failure(.uncaughtSignal(process, terminationStatus: terminationStatus)))
+            default:
+                fatalError()
+            }
+        }
+        self.process.standardOutputPipe = Pipe()
+        self.process.standardOutputPipe?.fileHandleForReading.readabilityHandler = { [weak self] handle in
+            guard let string = String(data: handle.availableData, encoding: .utf8) else {
+                return
+            }
+            _ = self?.subscriber?.receive(.standardOutput(string))
+        }
+        self.process.standardErrorPipe = Pipe()
+        self.process.standardErrorPipe?.fileHandleForReading.readabilityHandler = { [weak self] handle in
+            guard let string = String(data: handle.availableData, encoding: .utf8) else {
+                return
+            }
+            _ = self?.subscriber?.receive(.standardError(string))
+        }
+
+        #warning("TODO: Remove this when implementing ConnectablePublisher")
+        
+        do {
+            try self.process.run()
+        } catch let error {
+            self.subscriber?.receive(completion: .failure(.runFailure(error)))
+        }
+    }
+    
+    func request(_ demand: Subscribers.Demand) {
+        // Do nothing
+    }
+    
+    func cancel() {
+        subscriber = nil
+        process.terminate()
+        process.terminationHandler = nil
+        process.standardOutputPipe = nil
+        process.standardErrorPipe = nil
+    }
+    
+}
+
+#warning("TODO: This should be a ConnectablePublisher")
+
+@available(OSX 10.15, *) public class ProcessPublisher: Publisher {
+    
+    public typealias Output = ProcessMessage
+    
+    public typealias Failure = ProcessError
+    
+    private let process: Process
+    
+    public init(process: Process) {
+        self.process = process
+    }
+    
+    public func receive<S>(subscriber: S) where S : Subscriber, ProcessPublisher.Failure == S.Failure, ProcessPublisher.Output == S.Input {
+        let subscription = ProcessSubscription(subscriber: subscriber, process: process)
+        subscriber.receive(subscription: subscription)
+    }
+    
+}
+
 extension Process {
     
     convenience init(executableURL: URL, arguments: [String] = []) {
@@ -21,71 +116,39 @@ extension Process {
 
 extension Process {
     
-    public enum ProcessError: Error {
-        case runFailure(_ error: Error)
-        case nonzeroExitStatus(_ process: Process, terminationStatus: Int32)
-        case uncaughtSignal(_ process: Process, terminationStatus: Int32)
-    }
-    
-    public func run(completion: @escaping (Result<Process, ProcessError>) -> Void) {
-        terminationHandler = { process in
-            switch (process.terminationReason, process.terminationStatus) {
-            case (.exit, 0):
-                completion(.success(process))
-            case (.exit, let terminationStatus):
-                completion(.failure(.nonzeroExitStatus(process, terminationStatus: terminationStatus)))
-            case (.uncaughtSignal, let terminationStatus):
-                completion(.failure(.uncaughtSignal(process, terminationStatus: terminationStatus)))
-            default:
-                fatalError()
-            }
-        }
-        
-        do {
-            try run()
-        } catch let error {
-            completion(.failure(.runFailure(error)))
-        }
+    public func publisher() -> ProcessPublisher {
+        return ProcessPublisher(process: self)
     }
     
 }
 
-#warning("TODO: Merge message publisher with completion publisher; find way to publish termination status/reason (or just publish the process at each stage...?) ProcessMessage/ProcessError?")
-
-//extension Process {
-//    
-//    public func publisher() -> AnyPublisher<Process, ProcessError> {
-//        return Future<Process, ProcessError> { promise in
-//            self.run { result in
-//                promise(result)
-//            }
-//        }
-//        .eraseToAnyPublisher()
-//    }
-//    
-//}
-
 extension Process {
     
-    public enum ProcessMessage {
-        
-        case standardOutput(String)
-        case standardError(String)
-        
+    fileprivate var standardInputPipe: Pipe? {
+        get {
+            return standardInput as? Pipe
+        }
+        set {
+            standardInput = newValue
+        }
     }
     
-    public func publisher(standardOutput: Pipe = Pipe(), standardError: Pipe = Pipe()) -> AnyPublisher<ProcessMessage, Never> {
-        self.standardOutput = standardOutput
-        self.standardError = standardError
-        
-        return Publishers.Merge(
-            standardOutput.publisher().map { string in
-                return .standardOutput(string)
-            },
-            standardError.publisher().map { string in
-                return .standardError(string)
-            }
-        ).eraseToAnyPublisher()
+    fileprivate var standardOutputPipe: Pipe? {
+        get {
+            return standardOutput as? Pipe
+        }
+        set {
+            standardOutput = newValue
+        }
+    }
+    
+    fileprivate var standardErrorPipe: Pipe? {
+        get {
+            return standardError as? Pipe
+        }
+        set {
+            standardError = newValue
+        }
     }
     
 }
