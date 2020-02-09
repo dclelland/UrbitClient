@@ -50,7 +50,7 @@ extension Process {
     
 }
 
-#warning("TODO: Merge message publisher with completion publisher; find way to publish termination status/reason (or just publish the process at each stage...?)")
+#warning("TODO: Merge message publisher with completion publisher; find way to publish termination status/reason (or just publish the process at each stage...?) ProcessMessage/ProcessError?")
 
 //extension Process {
 //    
@@ -67,14 +67,14 @@ extension Process {
 
 extension Process {
     
-    public enum Message {
+    public enum ProcessMessage {
         
         case standardOutput(String)
         case standardError(String)
         
     }
     
-    public func publisher(standardOutput: Pipe = Pipe(), standardError: Pipe = Pipe()) -> AnyPublisher<Message, Never> {
+    public func publisher(standardOutput: Pipe = Pipe(), standardError: Pipe = Pipe()) -> AnyPublisher<ProcessMessage, Never> {
         self.standardOutput = standardOutput
         self.standardError = standardError
         
