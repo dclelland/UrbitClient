@@ -60,8 +60,6 @@ public enum ProcessError: Error {
             }
         }
         
-        #warning("TODO: Remove this when implementing ConnectablePublisher")
-        
         do {
             try self.process.run()
         } catch let error {
@@ -75,15 +73,11 @@ public enum ProcessError: Error {
     
     func cancel() {
         subscriber = nil
-        process.standardOutputPipe = nil
-        process.standardErrorPipe = nil
         process.terminate()
         process.terminationHandler = nil
     }
     
 }
-
-#warning("TODO: This should be a ConnectablePublisher")
 
 @available(OSX 10.15, *) public class ProcessPublisher: Publisher {
     
