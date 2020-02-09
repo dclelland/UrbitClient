@@ -50,6 +50,8 @@ extension Process {
     
 }
 
+#warning("TODO: Merge message publisher with completion publisher; find way to publish termination status/reason (or just publish the process at each stage...?)")
+
 //extension Process {
 //    
 //    public func publisher() -> AnyPublisher<Process, ProcessError> {
@@ -77,11 +79,11 @@ extension Process {
         self.standardError = standardError
         
         return Publishers.Merge(
-            standardOutput.publisher().map { string -> Message in
-                return .standardOutput(data)
+            standardOutput.publisher().map { string in
+                return .standardOutput(string)
             },
-            standardError.publisher().map { string -> Message in
-                return .standardError(data)
+            standardError.publisher().map { string in
+                return .standardError(string)
             }
         ).eraseToAnyPublisher()
     }
