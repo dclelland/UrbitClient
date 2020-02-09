@@ -33,18 +33,6 @@ public enum ProcessError: Error {
     init(subscriber: SubscriberType, process: Process) {
         self.subscriber = subscriber
         self.process = process
-        self.process.terminationHandler = { [weak self] process in
-            switch (process.terminationReason, process.terminationStatus) {
-            case (.exit, 0):
-                self?.subscriber?.receive(completion: .finished)
-            case (.exit, let terminationStatus):
-                self?.subscriber?.receive(completion: .failure(.nonzeroExitStatus(process, terminationStatus: terminationStatus)))
-            case (.uncaughtSignal, let terminationStatus):
-                self?.subscriber?.receive(completion: .failure(.uncaughtSignal(process, terminationStatus: terminationStatus)))
-            default:
-                fatalError()
-            }
-        }
         self.process.standardOutputPipe = Pipe()
         self.process.standardOutputPipe?.fileHandleForReading.readabilityHandler = { [weak self] handle in
             guard let string = String(data: handle.availableData, encoding: .utf8) else {
@@ -59,7 +47,19 @@ public enum ProcessError: Error {
             }
             _ = self?.subscriber?.receive(.standardError(string))
         }
-
+        self.process.terminationHandler = { [weak self] process in
+            switch (process.terminationReason, process.terminationStatus) {
+            case (.exit, 0):
+                self?.subscriber?.receive(completion: .finished)
+            case (.exit, let terminationStatus):
+                self?.subscriber?.receive(completion: .failure(.nonzeroExitStatus(process, terminationStatus: terminationStatus)))
+            case (.uncaughtSignal, let terminationStatus):
+                self?.subscriber?.receive(completion: .failure(.uncaughtSignal(process, terminationStatus: terminationStatus)))
+            default:
+                fatalError()
+            }
+        }
+        
         #warning("TODO: Remove this when implementing ConnectablePublisher")
         
         do {
@@ -75,10 +75,10 @@ public enum ProcessError: Error {
     
     func cancel() {
         subscriber = nil
-        process.terminate()
-        process.terminationHandler = nil
         process.standardOutputPipe = nil
         process.standardErrorPipe = nil
+        process.terminate()
+        process.terminationHandler = nil
     }
     
 }
