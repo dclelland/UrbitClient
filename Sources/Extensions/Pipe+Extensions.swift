@@ -18,7 +18,7 @@ import Combine
         self.subscriber = subscriber
         self.pipe = pipe
         self.pipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
-            guard let string = String(handle.availableData, encoding: .utf8) else {
+            guard let string = String(data: handle.availableData, encoding: .utf8) else {
                 return
             }
             
