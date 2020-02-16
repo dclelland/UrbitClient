@@ -24,7 +24,7 @@ public enum ProcessError: Error {
     
 }
 
-@available(OSX 10.15, *) private class ProcessSubscription<SubscriberType: Subscriber>: Subscription where SubscriberType.Input == ProcessMessage, SubscriberType.Failure == ProcessError {
+private class ProcessSubscription<SubscriberType: Subscriber>: Subscription where SubscriberType.Input == ProcessMessage, SubscriberType.Failure == ProcessError {
     
     private var subscriber: SubscriberType?
     
@@ -79,7 +79,7 @@ public enum ProcessError: Error {
     
 }
 
-@available(OSX 10.15, *) public class ProcessPublisher: Publisher {
+public class ProcessPublisher: Publisher {
     
     public typealias Output = ProcessMessage
     

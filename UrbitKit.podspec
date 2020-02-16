@@ -12,10 +12,10 @@ Pod::Spec.new do |s|
   s.license                 = { :type => 'MIT' }
   s.author                  = { "Daniel Clelland" => "daniel.clelland@gmail.com" }
   s.source                  = { :git => "https://github.com/dclelland/UrbitKit.git", :tag => "0.1.0" }
-  s.platform                = :macos, '10.15'
+  s.platform                = :osx, '10.15'
   s.swift_version           = '5.0'
   
-  s.macos.deployment_target = '10.15'
-  s.macos.source_files      = 'Sources/**/*.swift'
-  s.macos.resource_bundle   = { 'UrbitKit' => 'Resources/*' }
+  s.osx.deployment_target = '10.15'
+  s.osx.source_files      = 'Sources/**/*.swift'
+  s.osx.resource_bundle   = { 'UrbitKit' => 'Resources/*' }
 end
