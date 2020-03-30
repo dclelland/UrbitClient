@@ -23,7 +23,7 @@ extension Bundle {
 extension Bundle {
     
     public var urbitExecutableURL: URL {
-        return url(forResource: "king-darwin-dynamic-faec933b56109c3dab05211df93bc9cb49fe28fc", withExtension: nil)!
+        return url(forResource: "king-darwin-dynamic-6f8a248d67fd3f0123d887c1f5838b84a201022f", withExtension: nil)!
     }
     
     public var urbitPillURL: URL {
