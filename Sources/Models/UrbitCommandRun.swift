@@ -14,8 +14,12 @@ public class UrbitCommandRun: UrbitCommand {
         super.init(arguments: ["run"] + arguments)
     }
     
-    public convenience init(pier: URL, options: [UrbitCommandOption] = []) {
-        self.init(arguments: [pier.path] + options.flatMap { $0.arguments })
+    public convenience init(pier: URL, daemon: Bool = false, options: [UrbitCommandOption] = []) {
+        var arguments: [String] = [pier.path]
+        if daemon == true {
+            arguments += ["--daemon"]
+        }
+        self.init(arguments: arguments + options.flatMap { $0.arguments })
     }
     
 }
