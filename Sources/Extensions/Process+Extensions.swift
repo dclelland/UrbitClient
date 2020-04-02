@@ -11,8 +11,8 @@ import Combine
 
 public enum ProcessMessage {
     
-    case standardOutput(_ message: String)
-    case standardError(_ message: String)
+    case standardOutput(_ data: Data)
+    case standardError(_ data: Data)
     
 }
 
@@ -103,17 +103,11 @@ private class ProcessSubscription<SubscriberType: Subscriber>: Subscription wher
         self.process = process
         self.process.standardOutputPipe = Pipe()
         self.process.standardOutputPipe?.fileHandleForReading.readabilityHandler = { [weak self] handle in
-            guard let string = String(data: handle.availableData, encoding: .utf8) else {
-                return
-            }
-            _ = self?.subscriber?.receive(.standardOutput(string))
+            _ = self?.subscriber?.receive(.standardOutput(handle.availableData))
         }
         self.process.standardErrorPipe = Pipe()
         self.process.standardErrorPipe?.fileHandleForReading.readabilityHandler = { [weak self] handle in
-            guard let string = String(data: handle.availableData, encoding: .utf8) else {
-                return
-            }
-            _ = self?.subscriber?.receive(.standardError(string))
+            _ = self?.subscriber?.receive(.standardError(handle.availableData))
         }
         self.process.terminationHandler = { [weak self] process in
             switch (process.terminationReason, process.terminationStatus) {
