@@ -24,6 +24,74 @@ public enum ProcessError: Error {
     
 }
 
+extension Process {
+    
+    convenience init(executableURL: URL, arguments: [String] = []) {
+        self.init()
+        self.executableURL = executableURL
+        self.arguments = arguments
+    }
+    
+}
+
+extension Process {
+    
+    fileprivate var standardInputPipe: Pipe? {
+        get {
+            return standardInput as? Pipe
+        }
+        set {
+            standardInput = newValue
+        }
+    }
+    
+    fileprivate var standardOutputPipe: Pipe? {
+        get {
+            return standardOutput as? Pipe
+        }
+        set {
+            standardOutput = newValue
+        }
+    }
+    
+    fileprivate var standardErrorPipe: Pipe? {
+        get {
+            return standardError as? Pipe
+        }
+        set {
+            standardError = newValue
+        }
+    }
+    
+}
+
+extension Process {
+    
+    public func publisher() -> AnyPublisher<ProcessMessage, ProcessError> {
+        return ProcessPublisher(process: self).eraseToAnyPublisher()
+    }
+    
+}
+
+private class ProcessPublisher: Publisher {
+    
+    typealias Output = ProcessMessage
+    
+    typealias Failure = ProcessError
+    
+    private let process: Process
+    
+    init(process: Process) {
+        self.process = process
+    }
+    
+    func receive<S>(subscriber: S) where S : Subscriber, ProcessPublisher.Failure == S.Failure, ProcessPublisher.Output == S.Input {
+        let subscription = ProcessSubscription(subscriber: subscriber, process: process)
+        subscriber.receive(subscription: subscription)
+    }
+    
+}
+
 private class ProcessSubscription<SubscriberType: Subscriber>: Subscription where SubscriberType.Input == ProcessMessage, SubscriberType.Failure == ProcessError {
     
     private var subscriber: SubscriberType?
@@ -72,77 +140,8 @@ private class ProcessSubscription<SubscriberType: Subscriber>: Subscription wher
     }
     
     func cancel() {
-        subscriber = nil
         process.terminate()
-        process.terminationHandler = nil
-    }
-    
-}
-
-public class ProcessPublisher: Publisher {
-    
-    public typealias Output = ProcessMessage
-    
-    public typealias Failure = ProcessError
-    
-    private let process: Process
-    
-    public init(process: Process) {
-        self.process = process
-    }
-    
-    public func receive<S>(subscriber: S) where S : Subscriber, ProcessPublisher.Failure == S.Failure, ProcessPublisher.Output == S.Input {
-        let subscription = ProcessSubscription(subscriber: subscriber, process: process)
-        subscriber.receive(subscription: subscription)
-    }
-    
-}
-
-extension Process {
-    
-    convenience init(executableURL: URL, arguments: [String] = []) {
-        self.init()
-        self.executableURL = executableURL
-        self.arguments = arguments
-    }
-    
-}
-
-extension Process {
-    
-    public func publisher() -> ProcessPublisher {
-        return ProcessPublisher(process: self)
-    }
-    
-}
-
-extension Process {
-    
-    fileprivate var standardInputPipe: Pipe? {
-        get {
-            return standardInput as? Pipe
-        }
-        set {
-            standardInput = newValue
-        }
-    }
-    
-    fileprivate var standardOutputPipe: Pipe? {
-        get {
-            return standardOutput as? Pipe
-        }
-        set {
-            standardOutput = newValue
-        }
-    }
-    
-    fileprivate var standardErrorPipe: Pipe? {
-        get {
-            return standardError as? Pipe
-        }
-        set {
-            standardError = newValue
-        }
+        subscriber = nil
     }
     
 }
