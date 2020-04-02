@@ -18,8 +18,8 @@ public enum ProcessMessage {
 
 public enum ProcessError: Error {
     
-    case runFailure(_ error: Error)
-    case nonzeroExitStatus(_ process: Process, terminationStatus: Int32)
+    case run(_ error: Error)
+    case exit(_ process: Process, terminationStatus: Int32)
     case uncaughtSignal(_ process: Process, terminationStatus: Int32)
     
 }
@@ -120,7 +120,7 @@ private class ProcessSubscription<SubscriberType: Subscriber>: Subscription wher
             case (.exit, 0):
                 self?.subscriber?.receive(completion: .finished)
             case (.exit, let terminationStatus):
-                self?.subscriber?.receive(completion: .failure(.nonzeroExitStatus(process, terminationStatus: terminationStatus)))
+                self?.subscriber?.receive(completion: .failure(.exit(process, terminationStatus: terminationStatus)))
             case (.uncaughtSignal, let terminationStatus):
                 self?.subscriber?.receive(completion: .failure(.uncaughtSignal(process, terminationStatus: terminationStatus)))
             default:
@@ -131,7 +131,7 @@ private class ProcessSubscription<SubscriberType: Subscriber>: Subscription wher
         do {
             try self.process.run()
         } catch let error {
-            self.subscriber?.receive(completion: .failure(.runFailure(error)))
+            self.subscriber?.receive(completion: .failure(.run(error)))
         }
     }
     
