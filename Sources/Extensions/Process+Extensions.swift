@@ -16,11 +16,22 @@ public enum ProcessMessage {
     
 }
 
-public enum ProcessError: Error {
+public enum ProcessError: LocalizedError {
     
     case run(_ error: Error)
     case exit(_ process: Process, terminationStatus: Int32)
     case uncaughtSignal(_ process: Process, terminationStatus: Int32)
+    
+    public var errorDescription: String? {
+        switch self {
+        case .run(let error):
+            return error.localizedDescription
+        case .exit(_, let terminationStatus):
+            return "Exit: Process terminated with status \(terminationStatus)"
+        case .uncaughtSignal(_, let terminationStatus):
+            return "Uncaught signal: Process terminated with status \(terminationStatus)"
+        }
+    }
     
 }
 
