@@ -27,9 +27,9 @@ public enum ProcessError: LocalizedError {
         case .run(let error):
             return error.localizedDescription
         case .exit(_, let terminationStatus):
-            return "[Exit] Process terminated with status \(terminationStatus)"
+            return "Exit: Process terminated with status \(terminationStatus)"
         case .uncaughtSignal(_, let terminationStatus):
-            return "[Uncaught signal] Process terminated with status \(terminationStatus)"
+            return "Uncaught signal: Process terminated with status \(terminationStatus)"
         }
     }
     
